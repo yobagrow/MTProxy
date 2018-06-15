@@ -14,10 +14,10 @@
     You should have received a copy of the GNU Lesser General Public License
     along with Mtproto-proxy Library.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright 2014 Telegram Messenger Inc             
+    Copyright 2014 Telegram Messenger Inc
               2014 Nikolai Durov
               2014 Andrey Lopatin
-    
+
 */
 #define	_FILE_OFFSET_BITS	64
 #define _XOPEN_SOURCE 500
@@ -57,9 +57,9 @@ MODULE_STAT_TYPE {
 MODULE_INIT
 
 MODULE_STAT_FUNCTION
-  sb_printf (sb,
-    "tot_dh_rounds\t%lld %lld %lld\n", SB_SUM_LL(tot_dh_rounds[0]), SB_SUM_LL(tot_dh_rounds[1]), SB_SUM_LL(tot_dh_rounds[2])
-  );
+sb_printf (sb,
+           "tot_dh_rounds\t%lld %lld %lld\n", SB_SUM_LL(tot_dh_rounds[0]), SB_SUM_LL(tot_dh_rounds[1]), SB_SUM_LL(tot_dh_rounds[2])
+          );
 MODULE_STAT_FUNCTION_END
 
 void fetch_tot_dh_rounds_stat (long long _tot_dh_rounds[3]) {
@@ -119,7 +119,7 @@ int init_dh_params (void) {
     return 0;
   }
 
-  rpc_dh_prime = BN_new(); 
+  rpc_dh_prime = BN_new();
   assert (BN_bin2bn (rpc_dh_prime_bin, sizeof (rpc_dh_prime_bin), rpc_dh_prime));
 
   rpc_dh_generator = BN_new();
@@ -136,7 +136,7 @@ int init_dh_params (void) {
 
   dh_params_select = *(int *)shabuf;
   assert (dh_params_select == RPC_PARAM_HASH);
-  
+
   pthread_mutex_unlock (&DhInitLock);
   return 1;
 }
@@ -148,9 +148,9 @@ void create_g_a (unsigned char g_a[256], unsigned char a[256]) {
   }
   do {
 #if OPENSSL_VERSION_NUMBER > 0x10100000
-    assert (RAND_bytes(a, 256) >= 0); /* if you write '>0', the assert will fail. It's very sad */
+    assert (RAND_bytes (a, 256) >= 0); /* if you write '>0', the assert will fail. It's very sad */
 #else
-    assert (RAND_pseudo_bytes(a, 256) >= 0); /* if you write '>0', the assert will fail. It's very sad */
+    assert (RAND_pseudo_bytes (a, 256) >= 0); /* if you write '>0', the assert will fail. It's very sad */
 #endif
     BIGNUM *dh_power = BN_new ();
     assert (BN_bin2bn (a, 256, dh_power) == dh_power);
@@ -160,7 +160,7 @@ void create_g_a (unsigned char g_a[256], unsigned char a[256]) {
 
     int len = BN_num_bytes (value);
     assert (len > 240 && len <= 256);
-  
+
     memset (g_a, 0, 256 - len);
     assert (BN_bn2bin (value, g_a + (256 - len)) == len);
 
@@ -174,7 +174,7 @@ int dh_first_round (unsigned char g_a[256], struct crypto_temp_dh_params *dh_par
   create_g_a (g_a, dh_params->a);
   dh_params->magic = CRYPTO_TEMP_DH_PARAMS_MAGIC;
   MODULE_STAT->tot_dh_rounds[0] ++;
-  
+
   return 1;
 }
 
@@ -191,13 +191,13 @@ static void dh_inner_round (unsigned char g_ab[256], const unsigned char g_b[256
 
   BIGNUM *key = BN_new ();
   assert (BN_mod_exp (key, dh_base, dh_power, rpc_dh_prime, rpc_BN_ctx) == 1);
-  
+
   BN_free (dh_base);
   BN_clear_free (dh_power);
 
   int len = BN_num_bytes (key);
   assert (len > 240 && len <= 256);
-  
+
   memset (g_ab, 0, 256 - len);
   assert (BN_bn2bin (key, g_ab + (256 - len)) == len);
 
@@ -220,7 +220,7 @@ int dh_second_round (unsigned char g_ab[256], unsigned char g_a[256], const unsi
 
   vkprintf (2, "DH key is %02x%02x%02x...%02x%02x%02x\n", g_ab[0], g_ab[1], g_ab[2], g_ab[253], g_ab[254], g_ab[255]);
   MODULE_STAT->tot_dh_rounds[1]++;
-  
+
   return 256;
 }
 
