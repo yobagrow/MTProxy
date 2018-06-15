@@ -70,11 +70,11 @@
 #define VERSION_STR	"mtproxy-0.01"
 const char FullVersionStr[] = VERSION_STR " compiled at " __DATE__ " " __TIME__ " by gcc " __VERSION__ " "
 #ifdef __LP64__
-  "64-bit"
+                              "64-bit"
 #else
-  "32-bit"
+                              "32-bit"
 #endif
-" after commit " COMMIT;
+                              " after commit " COMMIT;
 
 #define EXT_CONN_TABLE_SIZE	(1 << 22)
 #define EXT_CONN_HASH_SHIFT	20
@@ -156,11 +156,11 @@ struct tcp_rpc_client_functions mtfront_rpc_client;
 conn_type_t ct_tcp_rpc_client_mtfront;
 
 struct conn_target_info default_cfg_ct = {
-.min_connections = DEFAULT_CFG_MIN_CONNECTIONS,
-.max_connections = DEFAULT_CFG_MAX_CONNECTIONS,
-.type = &ct_tcp_rpc_client_mtfront,
-.extra = (void *)&mtfront_rpc_client,
-.reconnect_timeout = 17
+  .min_connections = DEFAULT_CFG_MIN_CONNECTIONS,
+  .max_connections = DEFAULT_CFG_MAX_CONNECTIONS,
+  .type = &ct_tcp_rpc_client_mtfront,
+  .extra = (void *)&mtfront_rpc_client,
+  .reconnect_timeout = 17
 };
 
 
@@ -228,20 +228,20 @@ struct ext_connection *get_ext_connection_by_in_conn_id (int in_fd, int in_gen, 
     if (cur->in_fd == in_fd && cur->in_conn_id == in_conn_id) {
       assert (cur->out_conn_id);
       if (mode == 0 || mode == 3) {
-	return cur;
+        return cur;
       }
       if (mode != 1) {
-	return 0;
+        return 0;
       }
       if (cur->i_next) {
-	cur->i_next->i_prev = cur->i_prev;
-	cur->i_prev->i_next = cur->i_next;
-	cur->i_next = cur->i_prev = 0;
+        cur->i_next->i_prev = cur->i_prev;
+        cur->i_prev->i_next = cur->i_next;
+        cur->i_next = cur->i_prev = 0;
       }
       if (cur->o_next) {
-	cur->o_next->o_prev = cur->o_prev;
-	cur->o_prev->o_next = cur->o_next;
-	cur->o_next = cur->o_prev = 0;
+        cur->o_next->o_prev = cur->o_prev;
+        cur->o_prev->o_next = cur->o_next;
+        cur->o_next = cur->o_prev = 0;
       }
       lru_delete_ext_conn (cur);
       *prev = cur->h_next;
@@ -297,7 +297,7 @@ struct ext_connection *get_ext_connection_by_in_conn_id (int in_fd, int in_gen, 
 }
 
 struct ext_connection *find_ext_connection_by_out_conn_id (long long out_conn_id) {
- check_engine_class ();
+  check_engine_class ();
   int h = out_conn_id & (EXT_CONN_TABLE_SIZE - 1);
   struct ext_connection *cur = OutExtConnections[h].ref;
   if (!cur || OutExtConnections[h].out_conn_id != out_conn_id) {
@@ -341,7 +341,7 @@ void remove_ext_connection (struct ext_connection *Ex, int send_notifications) {
     if (send_notifications & 1) {
       connection_job_t CO = connection_get_by_fd_generation (Ex->out_fd, Ex->out_gen);
       if (CO) {
-	_notify_remote_closed (JOB_REF_PASS (CO), Ex->out_conn_id);
+        _notify_remote_closed (JOB_REF_PASS (CO), Ex->out_conn_id);
       }
     }
   }
@@ -351,12 +351,12 @@ void remove_ext_connection (struct ext_connection *Ex, int send_notifications) {
     if (send_notifications & 2) {
       connection_job_t CI = connection_get_by_fd_generation (Ex->in_fd, Ex->in_gen);
       if (Ex->in_conn_id) {
-	assert (0);
+        assert (0);
       } else {
-	if (CI) {
-	  fail_connection (CI, -33);
-	  job_decref (JOB_REF_PASS (CI));
-	}
+        if (CI) {
+          fail_connection (CI, -33);
+          job_decref (JOB_REF_PASS (CI));
+        }
       }
     }
   }
@@ -387,7 +387,7 @@ struct worker_stats {
   int pending_http_queries;
 
   long long accept_calls_failed, accept_nonblock_set_failed, accept_connection_limit_failed,
-            accept_rate_limit_failed, accept_init_accepted_failed;
+       accept_rate_limit_failed, accept_init_accepted_failed;
 
   long long active_rpcs, active_rpcs_created;
   long long rpc_dropped_running, rpc_dropped_answers;
@@ -431,28 +431,28 @@ static void update_local_stats_copy (struct worker_stats *S) {
   fetch_aes_crypto_stat (&S->allocated_aes_crypto, &S->allocated_aes_crypto_temp);
   fetch_buffers_stat (&S->bufs);
 
-  UPD (ev_heap_size); 
+  UPD (ev_heap_size);
 
   UPD (get_queries);
   UPD (http_connections);
-  UPD (pending_http_queries); 
+  UPD (pending_http_queries);
   UPD (active_rpcs);
-  UPD (active_rpcs_created); 
+  UPD (active_rpcs_created);
   UPD (rpc_dropped_running);
   UPD (rpc_dropped_answers);
-  UPD (tot_forwarded_queries); 
-  UPD (expired_forwarded_queries); 
-  UPD (dropped_queries); 
-  UPD (tot_forwarded_responses); 
-  UPD (dropped_responses); 
+  UPD (tot_forwarded_queries);
+  UPD (expired_forwarded_queries);
+  UPD (dropped_queries);
+  UPD (tot_forwarded_responses);
+  UPD (dropped_responses);
   UPD (tot_forwarded_simple_acks);
   UPD (dropped_simple_acks);
   UPD (mtproto_proxy_errors);
   UPD (connections_failed_lru);
   UPD (connections_failed_flood);
-  UPD (ext_connections); 
-  UPD (ext_connections_created); 
-  UPD (http_queries); 
+  UPD (ext_connections);
+  UPD (ext_connections_created);
+  UPD (http_queries);
   UPD (http_bad_headers);
 #undef UPD
   __sync_synchronize();
@@ -466,21 +466,21 @@ static inline void add_stats (struct worker_stats *W) {
   UPD (tot_dh_rounds[1]);
   UPD (tot_dh_rounds[2]);
 
-  UPD (conn.active_connections); 
-  UPD (conn.active_dh_connections); 
-  UPD (conn.outbound_connections); 
-  UPD (conn.active_outbound_connections); 
-  UPD (conn.ready_outbound_connections); 
+  UPD (conn.active_connections);
+  UPD (conn.active_dh_connections);
+  UPD (conn.outbound_connections);
+  UPD (conn.active_outbound_connections);
+  UPD (conn.ready_outbound_connections);
   UPD (conn.active_special_connections);
   UPD (conn.max_special_connections);
   UPD (conn.allocated_connections);
   UPD (conn.allocated_outbound_connections);
   UPD (conn.allocated_inbound_connections);
   UPD (conn.allocated_socket_connections);
-  UPD (conn.allocated_targets); 
-  UPD (conn.ready_targets); 
-  UPD (conn.active_targets); 
-  UPD (conn.inactive_targets); 
+  UPD (conn.allocated_targets);
+  UPD (conn.ready_targets);
+  UPD (conn.active_targets);
+  UPD (conn.inactive_targets);
   UPD (conn.tcp_readv_calls);
   UPD (conn.tcp_readv_intr);
   UPD (conn.tcp_readv_bytes);
@@ -492,40 +492,40 @@ static inline void add_stats (struct worker_stats *W) {
   UPD (conn.accept_rate_limit_failed);
   UPD (conn.accept_init_accepted_failed);
 
-  UPD (allocated_aes_crypto); 
-  UPD (allocated_aes_crypto_temp); 
+  UPD (allocated_aes_crypto);
+  UPD (allocated_aes_crypto_temp);
 
-  UPD (bufs.total_used_buffers_size); 
-  UPD (bufs.allocated_buffer_bytes); 
-  UPD (bufs.total_used_buffers); 
+  UPD (bufs.total_used_buffers_size);
+  UPD (bufs.allocated_buffer_bytes);
+  UPD (bufs.total_used_buffers);
   UPD (bufs.allocated_buffer_chunks);
   UPD (bufs.max_allocated_buffer_chunks);
   UPD (bufs.max_allocated_buffer_bytes);
   UPD (bufs.max_buffer_chunks);
   UPD (bufs.buffer_chunk_alloc_ops);
 
-  UPD (ev_heap_size); 
+  UPD (ev_heap_size);
 
   UPD (get_queries);
   UPD (http_connections);
-  UPD (pending_http_queries); 
+  UPD (pending_http_queries);
   UPD (active_rpcs);
-  UPD (active_rpcs_created); 
+  UPD (active_rpcs_created);
   UPD (rpc_dropped_running);
   UPD (rpc_dropped_answers);
-  UPD (tot_forwarded_queries); 
-  UPD (expired_forwarded_queries); 
-  UPD (dropped_queries); 
-  UPD (tot_forwarded_responses); 
-  UPD (dropped_responses); 
+  UPD (tot_forwarded_queries);
+  UPD (expired_forwarded_queries);
+  UPD (dropped_queries);
+  UPD (tot_forwarded_responses);
+  UPD (dropped_responses);
   UPD (tot_forwarded_simple_acks);
   UPD (dropped_simple_acks);
   UPD (mtproto_proxy_errors);
   UPD (connections_failed_lru);
   UPD (connections_failed_flood);
-  UPD (ext_connections); 
-  UPD (ext_connections_created); 
-  UPD (http_queries); 
+  UPD (ext_connections);
+  UPD (ext_connections_created);
+  UPD (http_queries);
   UPD (http_bad_headers);
 #undef UPD
 }
@@ -551,7 +551,7 @@ void compute_stats_sum (void) {
     do {
       F = WStats + i * 2;
       do {
-	barrier ();
+        barrier ();
         s_cnt = (++F)->cnt;
         if (!(s_cnt & 1)) {
           break;
@@ -592,126 +592,126 @@ void mtfront_prepare_stats (stats_buffer_t *sb) {
 #define S1(x)	(SumStats.x)
 #define SW(x)	(workers ? S1(x) : S(x))
   sb_printf (sb,
-	     "config_filename\t%s\n"
-	     "config_loaded_at\t%d\n"
-	     "config_size\t%d\n"
-	     "config_md5\t%s\n"
-	     "config_auth_clusters\t%d\n"
-	     "workers\t%d\n"
-	     "queries_get\t%lld\n"
-	     "qps_get\t%.3f\n"
-	     "tot_forwarded_queries\t%lld\n"
-	     "expired_forwarded_queries\t%lld\n"
-	     "dropped_queries\t%lld\n"
-	     "tot_forwarded_responses\t%lld\n"
-	     "dropped_responses\t%lld\n"
-	     "tot_forwarded_simple_acks\t%lld\n"
-	     "dropped_simple_acks\t%lld\n"
-	     "active_rpcs_created\t%lld\n"
-	     "active_rpcs\t%lld\n"
-	     "rpc_dropped_answers\t%lld\n"
-	     "rpc_dropped_running\t%lld\n"
-	     "window_clamp\t%d\n"
-	     "total_ready_targets\t%d\n"
-	     "total_allocated_targets\t%d\n"
-	     "total_declared_targets\t%d\n"
-	     "total_inactive_targets\t%d\n"
-	     "total_connections\t%d\n"
-	     "total_encrypted_connections\t%d\n"
-	     "total_allocated_connections\t%d\n"
-	     "total_allocated_outbound_connections\t%d\n"
-	     "total_allocated_inbound_connections\t%d\n"
-	     "total_allocated_socket_connections\t%d\n"
-	     "total_dh_connections\t%d\n"
-	     "total_dh_rounds\t%lld %lld %lld\n"
-	     "total_special_connections\t%d\n"
-	     "total_max_special_connections\t%d\n"
-	     "total_accept_connections_failed\t%lld %lld %lld %lld %lld\n"
-	     "ext_connections\t%lld\n"
-	     "ext_connections_created\t%lld\n"
-	     "total_active_network_events\t%d\n"
-	     "total_network_buffers_used_size\t%lld\n"
-	     "total_network_buffers_allocated_bytes\t%lld\n"
-	     "total_network_buffers_used\t%d\n"
-	     "total_network_buffer_chunks_allocated\t%d\n"
-	     "total_network_buffer_chunks_allocated_max\t%d\n"
-	     "mtproto_proxy_errors\t%lld\n"
-	     "connections_failed_lru\t%lld\n"
-	     "connections_failed_flood\t%lld\n"
-	     "http_connections\t%d\n"
-	     "pending_http_queries\t%d\n"
-	     "http_queries\t%lld\n"
-	     "http_bad_headers\t%lld\n"
-	     "http_qps\t%.6f\n"
-	     "proxy_mode\t%d\n"
-	     "proxy_tag_set\t%d\n"
-	     "version\t" VERSION_STR " compiled at " __DATE__ " " __TIME__ " by gcc " __VERSION__ " "
+             "config_filename\t%s\n"
+             "config_loaded_at\t%d\n"
+             "config_size\t%d\n"
+             "config_md5\t%s\n"
+             "config_auth_clusters\t%d\n"
+             "workers\t%d\n"
+             "queries_get\t%lld\n"
+             "qps_get\t%.3f\n"
+             "tot_forwarded_queries\t%lld\n"
+             "expired_forwarded_queries\t%lld\n"
+             "dropped_queries\t%lld\n"
+             "tot_forwarded_responses\t%lld\n"
+             "dropped_responses\t%lld\n"
+             "tot_forwarded_simple_acks\t%lld\n"
+             "dropped_simple_acks\t%lld\n"
+             "active_rpcs_created\t%lld\n"
+             "active_rpcs\t%lld\n"
+             "rpc_dropped_answers\t%lld\n"
+             "rpc_dropped_running\t%lld\n"
+             "window_clamp\t%d\n"
+             "total_ready_targets\t%d\n"
+             "total_allocated_targets\t%d\n"
+             "total_declared_targets\t%d\n"
+             "total_inactive_targets\t%d\n"
+             "total_connections\t%d\n"
+             "total_encrypted_connections\t%d\n"
+             "total_allocated_connections\t%d\n"
+             "total_allocated_outbound_connections\t%d\n"
+             "total_allocated_inbound_connections\t%d\n"
+             "total_allocated_socket_connections\t%d\n"
+             "total_dh_connections\t%d\n"
+             "total_dh_rounds\t%lld %lld %lld\n"
+             "total_special_connections\t%d\n"
+             "total_max_special_connections\t%d\n"
+             "total_accept_connections_failed\t%lld %lld %lld %lld %lld\n"
+             "ext_connections\t%lld\n"
+             "ext_connections_created\t%lld\n"
+             "total_active_network_events\t%d\n"
+             "total_network_buffers_used_size\t%lld\n"
+             "total_network_buffers_allocated_bytes\t%lld\n"
+             "total_network_buffers_used\t%d\n"
+             "total_network_buffer_chunks_allocated\t%d\n"
+             "total_network_buffer_chunks_allocated_max\t%d\n"
+             "mtproto_proxy_errors\t%lld\n"
+             "connections_failed_lru\t%lld\n"
+             "connections_failed_flood\t%lld\n"
+             "http_connections\t%d\n"
+             "pending_http_queries\t%d\n"
+             "http_queries\t%lld\n"
+             "http_bad_headers\t%lld\n"
+             "http_qps\t%.6f\n"
+             "proxy_mode\t%d\n"
+             "proxy_tag_set\t%d\n"
+             "version\t" VERSION_STR " compiled at " __DATE__ " " __TIME__ " by gcc " __VERSION__ " "
 #ifdef __LP64__
-	     "64-bit"
+             "64-bit"
 #else
-	     "32-bit"
+             "32-bit"
 #endif
-	     " after commit " COMMIT "\n",
-	     config_filename,
-	     CurConf->config_loaded_at,
-	     CurConf->config_bytes,
-	     CurConf->config_md5_hex,
-	     CurConf->auth_stats.tot_clusters,
-	     workers,
-	     S(get_queries),
-	     safe_div (S(get_queries), uptime),
-	     S(tot_forwarded_queries),
-	     S(expired_forwarded_queries),
-	     S(dropped_queries),
-	     S(tot_forwarded_responses),
-	     S(dropped_responses),
-	     S(tot_forwarded_simple_acks),
-	     S(dropped_simple_acks),
-	     S(active_rpcs_created),
-	     S(active_rpcs),
-	     S(rpc_dropped_answers),
-	     S(rpc_dropped_running),
-	     window_clamp,
-	     SW(conn.ready_targets),
-	     SW(conn.allocated_targets),
-	     SW(conn.active_targets),
-	     SW(conn.inactive_targets),
-	     S(conn.active_connections),
-	     S(allocated_aes_crypto),
-	     S(conn.allocated_connections),
-	     S(conn.allocated_outbound_connections),
-	     S(conn.allocated_inbound_connections),
-	     S(conn.allocated_socket_connections),
-	     S(conn.active_dh_connections),
-	     S(tot_dh_rounds[0]),
-	     S(tot_dh_rounds[1]),
-	     S(tot_dh_rounds[2]),
-	     SW(conn.active_special_connections),
-	     SW(conn.max_special_connections),
-	     S(conn.accept_init_accepted_failed), 
-	     S(conn.accept_calls_failed),
-	     S(conn.accept_connection_limit_failed),
-	     S(conn.accept_rate_limit_failed),
-	     S(conn.accept_nonblock_set_failed),
-	     S(ext_connections),
-	     S(ext_connections_created),
-	     S(ev_heap_size),
-	     SW(bufs.total_used_buffers_size),
-	     SW(bufs.allocated_buffer_bytes),
-	     SW(bufs.total_used_buffers),
-	     SW(bufs.allocated_buffer_chunks),
-	     SW(bufs.max_allocated_buffer_chunks),
-	     S(mtproto_proxy_errors),
-	     S(connections_failed_lru),
-	     S(connections_failed_flood),
-	     S(http_connections),
-	     S(pending_http_queries),
-	     S(http_queries),
-	     S(http_bad_headers),
-	     safe_div (S(http_queries), uptime),
-	     proxy_mode,
-	     proxy_tag_set
-  );
+             " after commit " COMMIT "\n",
+             config_filename,
+             CurConf->config_loaded_at,
+             CurConf->config_bytes,
+             CurConf->config_md5_hex,
+             CurConf->auth_stats.tot_clusters,
+             workers,
+             S(get_queries),
+             safe_div (S(get_queries), uptime),
+             S(tot_forwarded_queries),
+             S(expired_forwarded_queries),
+             S(dropped_queries),
+             S(tot_forwarded_responses),
+             S(dropped_responses),
+             S(tot_forwarded_simple_acks),
+             S(dropped_simple_acks),
+             S(active_rpcs_created),
+             S(active_rpcs),
+             S(rpc_dropped_answers),
+             S(rpc_dropped_running),
+             window_clamp,
+             SW(conn.ready_targets),
+             SW(conn.allocated_targets),
+             SW(conn.active_targets),
+             SW(conn.inactive_targets),
+             S(conn.active_connections),
+             S(allocated_aes_crypto),
+             S(conn.allocated_connections),
+             S(conn.allocated_outbound_connections),
+             S(conn.allocated_inbound_connections),
+             S(conn.allocated_socket_connections),
+             S(conn.active_dh_connections),
+             S(tot_dh_rounds[0]),
+             S(tot_dh_rounds[1]),
+             S(tot_dh_rounds[2]),
+             SW(conn.active_special_connections),
+             SW(conn.max_special_connections),
+             S(conn.accept_init_accepted_failed),
+             S(conn.accept_calls_failed),
+             S(conn.accept_connection_limit_failed),
+             S(conn.accept_rate_limit_failed),
+             S(conn.accept_nonblock_set_failed),
+             S(ext_connections),
+             S(ext_connections_created),
+             S(ev_heap_size),
+             SW(bufs.total_used_buffers_size),
+             SW(bufs.allocated_buffer_bytes),
+             SW(bufs.total_used_buffers),
+             SW(bufs.allocated_buffer_chunks),
+             SW(bufs.max_allocated_buffer_chunks),
+             S(mtproto_proxy_errors),
+             S(connections_failed_lru),
+             S(connections_failed_flood),
+             S(http_connections),
+             S(pending_http_queries),
+             S(http_queries),
+             S(http_bad_headers),
+             safe_div (S(http_queries), uptime),
+             proxy_mode,
+             proxy_tag_set
+            );
 #undef S
 #undef S1
 #undef SW
@@ -736,7 +736,7 @@ int callback_job_run (job_t job, int op, struct job_thread *JT) {
   switch (op) {
   case JS_RUN:
     return D->func (D->data, job->j_custom_bytes - offsetof (struct job_callback_info, data));
-    // return JOB_COMPLETED;
+  // return JOB_COMPLETED;
   case JS_FINISH:
     return job_free (JOB_REF_PASS (job));
   default:
@@ -784,7 +784,8 @@ static int _notify_remote_closed (JOB_REF_ARG(C), long long out_conn_id) {
   TLS_START (JOB_REF_PASS(C)) {
     tl_store_int (RPC_CLOSE_CONN);
     tl_store_long (out_conn_id);
-  } TLS_END;
+  }
+  TLS_END;
   return 1;
 }
 
@@ -819,16 +820,16 @@ int process_client_packet (struct tl_in_state *tlio_in, int op, connection_job_t
       struct ext_connection *Ex = find_ext_connection_by_out_conn_id (out_conn_id);
       connection_job_t D = 0;
       if (Ex && Ex->out_fd == CONN_INFO(C)->fd && Ex->out_gen == CONN_INFO(C)->generation) {
-	D = connection_get_by_fd_generation (Ex->in_fd, Ex->in_gen);
+        D = connection_get_by_fd_generation (Ex->in_fd, Ex->in_gen);
       }
       if (D) {
-	vkprintf (2, "proxying answer into connection %d:%llx\n", Ex->in_fd, Ex->in_conn_id);
-	tot_forwarded_responses++;
-	client_send_message (JOB_REF_PASS(D), Ex->in_conn_id, tlio_in, flags);
+        vkprintf (2, "proxying answer into connection %d:%llx\n", Ex->in_fd, Ex->in_conn_id);
+        tot_forwarded_responses++;
+        client_send_message (JOB_REF_PASS(D), Ex->in_conn_id, tlio_in, flags);
       } else {
-	vkprintf (2, "external connection not found, dropping proxied answer\n");
-	dropped_responses++;
-	_notify_remote_closed (JOB_REF_CREATE_PASS(C), out_conn_id);
+        vkprintf (2, "external connection not found, dropping proxied answer\n");
+        dropped_responses++;
+        _notify_remote_closed (JOB_REF_CREATE_PASS(C), out_conn_id);
       }
       return 1;
     }
@@ -841,34 +842,34 @@ int process_client_packet (struct tl_in_state *tlio_in, int op, connection_job_t
       struct ext_connection *Ex = find_ext_connection_by_out_conn_id (out_conn_id);
       connection_job_t D = 0;
       if (Ex && Ex->out_fd == CONN_INFO(C)->fd && Ex->out_gen == CONN_INFO(C)->generation) {
-	D = connection_get_by_fd_generation (Ex->in_fd, Ex->in_gen);
+        D = connection_get_by_fd_generation (Ex->in_fd, Ex->in_gen);
       }
       if (D) {
-	vkprintf (2, "proxying simple ack %08x into connection %d:%llx\n", confirm, Ex->in_fd, Ex->in_conn_id);
-	if (Ex->in_conn_id) {
-	  assert (0);
-	} else {
-	  if (TCP_RPC_DATA(D)->flags & RPC_F_COMPACT) {
-	    confirm = __builtin_bswap32 (confirm);
-	  }
-	  push_rpc_confirmation (JOB_REF_PASS (D), confirm);
-	}
-	tot_forwarded_simple_acks++;
+        vkprintf (2, "proxying simple ack %08x into connection %d:%llx\n", confirm, Ex->in_fd, Ex->in_conn_id);
+        if (Ex->in_conn_id) {
+          assert (0);
+        } else {
+          if (TCP_RPC_DATA(D)->flags & RPC_F_COMPACT) {
+            confirm = __builtin_bswap32 (confirm);
+          }
+          push_rpc_confirmation (JOB_REF_PASS (D), confirm);
+        }
+        tot_forwarded_simple_acks++;
       } else {
-	vkprintf (2, "external connection not found, dropping simple ack\n");
-	dropped_simple_acks++;
-	_notify_remote_closed (JOB_REF_CREATE_PASS (C), out_conn_id);
+        vkprintf (2, "external connection not found, dropping simple ack\n");
+        dropped_simple_acks++;
+        _notify_remote_closed (JOB_REF_CREATE_PASS (C), out_conn_id);
       }
       return 1;
     }
     break;
   case RPC_CLOSE_EXT:
-    if (len == 12) { 
+    if (len == 12) {
       long long out_conn_id = tl_fetch_long ();
       vkprintf (2, "got RPC_CLOSE_EXT for connection = %llx\n", out_conn_id);
       struct ext_connection *Ex = find_ext_connection_by_out_conn_id (out_conn_id);
       if (Ex) {
-	remove_ext_connection (Ex, 2);
+        remove_ext_connection (Ex, 2);
       }
       return 1;
     }
@@ -882,7 +883,7 @@ int process_client_packet (struct tl_in_state *tlio_in, int op, connection_job_t
 
 int client_packet_job_run (job_t job, int op, struct job_thread *JT) {
   struct client_packet_info *D = (struct client_packet_info *)(job->j_custom);
-  
+
   switch (op) {
   case JS_RUN: {
     struct tl_in_state *tlio_in = tl_in_state_alloc ();
@@ -1106,10 +1107,10 @@ int mtproto_proxy_rpc_close (connection_job_t C, int who) {
 }
 
 char mtproto_cors_http_headers[] =
-	"Access-Control-Allow-Origin: *\r\n"
-	"Access-Control-Allow-Methods: POST, OPTIONS\r\n"
-	"Access-Control-Allow-Headers: origin, content-type\r\n"
-	"Access-Control-Max-Age: 1728000\r\n";
+  "Access-Control-Allow-Origin: *\r\n"
+  "Access-Control-Allow-Methods: POST, OPTIONS\r\n"
+  "Access-Control-Allow-Headers: origin, content-type\r\n"
+  "Access-Control-Max-Age: 1728000\r\n";
 
 int forward_mtproto_packet (struct tl_in_state *tlio_in, connection_job_t C, int len, int remote_ip_port[5], int rpc_flags);
 int forward_tcp_query (struct tl_in_state *tlio_in, connection_job_t C, conn_target_job_t S, int flags, long long auth_key_id, int remote_ip_port[5], int our_ip_port[5]);
@@ -1136,18 +1137,18 @@ int parse_text_ipv6 (unsigned char ip[16], const char *str) {
     int c = *ptr;
     if (i > 0) {
       if (c == ':') {
-	c = *++ptr;
+        c = *++ptr;
       } else if (k >= 0) {
-	break;
+        break;
       } else {
-	return -1; // ':' expected
+        return -1; // ':' expected
       }
       if (c == ':') {
-	if (k >= 0) {
-	  return -1; // second '::'
-	}
-	k = i;
-	c = *++ptr;
+        if (k >= 0) {
+          return -1; // second '::'
+        }
+        k = i;
+        c = *++ptr;
       }
     }
     int j = 0, v = 0;
@@ -1155,13 +1156,13 @@ int parse_text_ipv6 (unsigned char ip[16], const char *str) {
       c |= 0x20;
       v = (v << 4) + (c <= '9' ? c - '0' : c - 'a' + 10);
       if (++j > 4) {
-	return -1; // more than 4 hex digits in component
+        return -1; // more than 4 hex digits in component
       }
       c = *++ptr;
     }
     if (!j) {
       if (k == i) {
-	break;
+        break;
       }
       return -1; // hex digit or ':' expected
     }
@@ -1273,22 +1274,22 @@ int process_http_query (struct tl_in_state *tlio_in, job_t HQJ) {
       int x_real_ip_len = get_http_header (qHeaders, qHeadersLen, x_real_ip, sizeof (x_real_ip) - 1, "X-Real-IP", 9);
       int x_real_port_len = get_http_header (qHeaders, qHeadersLen, x_real_port, sizeof (x_real_port) - 1, "X-Real-Port", 11);
       if (x_real_ip_len > 0) {
-	unsigned real_ip = parse_text_ipv4 (x_real_ip);
-	if (real_ip >= (1 << 24) || parse_text_ipv6 ((unsigned char *)tmp_ip_port, x_real_ip) > 0) {
-	  if (real_ip >= (1 << 24)) {
-	    tmp_ip_port[0] = 0;
-	    tmp_ip_port[1] = 0;
-	    tmp_ip_port[2] = 0xffff0000;
-	    tmp_ip_port[3] = htonl (real_ip);
-	  }
-	  int port = (x_real_port_len > 0 ? atoi (x_real_port) : 0);
-	  tmp_ip_port[4] = (port > 0 && port < 65536 ? port : 0);
-	  remote_ip_port = tmp_ip_port;
-	  vkprintf (3, "set remote IPv6:port to %08x:%08x:%08x:%08x:%08x according to X-Real-Ip '%s', X-Real-Port '%s'\n", tmp_ip_port[0], tmp_ip_port[1], tmp_ip_port[2], tmp_ip_port[3], tmp_ip_port[4], x_real_ip, x_real_port_len > 0 ? x_real_port : "");
-	}
+        unsigned real_ip = parse_text_ipv4 (x_real_ip);
+        if (real_ip >= (1 << 24) || parse_text_ipv6 ((unsigned char *)tmp_ip_port, x_real_ip) > 0) {
+          if (real_ip >= (1 << 24)) {
+            tmp_ip_port[0] = 0;
+            tmp_ip_port[1] = 0;
+            tmp_ip_port[2] = 0xffff0000;
+            tmp_ip_port[3] = htonl (real_ip);
+          }
+          int port = (x_real_port_len > 0 ? atoi (x_real_port) : 0);
+          tmp_ip_port[4] = (port > 0 && port < 65536 ? port : 0);
+          remote_ip_port = tmp_ip_port;
+          vkprintf (3, "set remote IPv6:port to %08x:%08x:%08x:%08x:%08x according to X-Real-Ip '%s', X-Real-Port '%s'\n", tmp_ip_port[0], tmp_ip_port[1], tmp_ip_port[2], tmp_ip_port[3], tmp_ip_port[4], x_real_ip, x_real_port_len > 0 ? x_real_port : "");
+        }
       }
     }
-    
+
     int res = forward_mtproto_packet (tlio_in, c, D->data_size, remote_ip_port, 0);
     return res ? 1 : -404;
   }
@@ -1298,7 +1299,7 @@ int process_http_query (struct tl_in_state *tlio_in, job_t HQJ) {
 
 int http_query_job_run (job_t job, int op, struct job_thread *JT) {
   struct http_query_info *HQ = (struct http_query_info *)(job->j_custom);
-  
+
   switch (op) {
   case JS_RUN: { // ENGINE context
     lru_insert_conn (HQ->conn);
@@ -1330,12 +1331,12 @@ int http_query_job_run (job_t job, int op, struct job_thread *JT) {
     if (HQ->flags & 1) {
       connection_job_t c = HQ->conn ? job_incref (HQ->conn): connection_get_by_fd_generation (HQ->conn_fd, HQ->conn_generation);
       if (c) {
-	assert (CONN_INFO(c)->pending_queries == 1);
-	CONN_INFO(c)->pending_queries--;
-	if (!(HTS_DATA(c)->query_flags & QF_KEEPALIVE) && CONN_INFO(c)->status == conn_working) {
-	  connection_write_close (c);
-	}
-	job_decref (JOB_REF_PASS (c));
+        assert (CONN_INFO(c)->pending_queries == 1);
+        CONN_INFO(c)->pending_queries--;
+        if (!(HTS_DATA(c)->query_flags & QF_KEEPALIVE) && CONN_INFO(c)->status == conn_working) {
+          connection_write_close (c);
+        }
+        job_decref (JOB_REF_PASS (c));
       }
       --pending_http_queries;
       HQ->flags &= ~1;
@@ -1371,10 +1372,10 @@ int hts_stats_execute (connection_job_t c, struct raw_message *msg, int op) {
   if (D->uri_size != 6) {
     return -404;
   }
-  
+
   char ReqHdr[MAX_HTTP_HEADER_SIZE];
   assert (rwm_fetch_data (msg, &ReqHdr, D->header_size) == D->header_size);
-  
+
   if (memcmp (ReqHdr + D->uri_offset, "/stats", 6)) {
     return -404;
   }
@@ -1391,7 +1392,7 @@ int hts_stats_execute (connection_job_t c, struct raw_message *msg, int op) {
   job_signal (JOB_REF_CREATE_PASS (c), JS_RUN);
 
   sb_release (&sb);
-  
+
   return 0;
 }
 
@@ -1399,7 +1400,7 @@ int hts_stats_execute (connection_job_t c, struct raw_message *msg, int op) {
 int hts_execute (connection_job_t c, struct raw_message *msg, int op) {
   struct hts_data *D = HTS_DATA(c);
   vkprintf (2, "in hts_execute: connection #%d, op=%d, header_size=%d, data_size=%d, http_version=%d\n",
-	    CONN_INFO(c)->fd, op, D->header_size, D->data_size, D->http_ver);
+            CONN_INFO(c)->fd, op, D->header_size, D->data_size, D->http_ver);
   rwm_dump(msg);
 
   fail_connection(c, -1);
@@ -1492,7 +1493,7 @@ int do_rpcs_execute (void *_data, int s_len) {
   }
   return JOB_COMPLETED;
 }
-  
+
 
 int ext_rpcs_execute (connection_job_t c, int op, struct raw_message *msg) {
   int len = msg->total_bytes;
@@ -1549,7 +1550,7 @@ int finish_postponed_http_response (void *_data, int len) {
     assert (CONN_INFO(C)->pending_queries > 0);
     assert (CONN_INFO(C)->pending_queries == 1);
     CONN_INFO(C)->pending_queries = 0;
-    --pending_http_queries; 
+    --pending_http_queries;
     // check_conn_buffers (C);
     http_flush (C, 0);
   } else {
@@ -1575,7 +1576,8 @@ int http_send_message (JOB_REF_ARG (C), struct tl_in_state *tlio_in, int flags) 
       int len = TL_IN_REMAINING;
       tl_store_raw_data (response_buffer, snprintf (response_buffer, sizeof (response_buffer) - 1, "HTTP/1.1 200 OK\r\nConnection: %s\r\nContent-type: application/octet-stream\r\nPragma: no-cache\r\nCache-control: no-store\r\n%sContent-length: %d\r\n\r\n", (D->query_flags & QF_KEEPALIVE) ? "keep-alive" : "close", D->query_flags & QF_EXTRA_HEADERS ? mtproto_cors_http_headers : "", len));
       assert (tl_copy_through (tlio_in, tlio_out, len, 1) == len);
-    } TLS_END;
+    }
+    TLS_END;
   }
 
   assert (CONN_INFO(C)->status == conn_working && CONN_INFO(C)->pending_queries == 1);
@@ -1609,14 +1611,15 @@ int client_send_message (JOB_REF_ARG(C), long long in_conn_id, struct tl_in_stat
   }
   TLS_START (JOB_REF_CREATE_PASS (C)) {
     assert (tl_copy_through (tlio_in, tlio_out, TL_IN_REMAINING, 1) >= 0);
-  } TLS_END;
+  }
+  TLS_END;
 
-  if (check_conn_buffers (C) < 0) { 
+  if (check_conn_buffers (C) < 0) {
     job_decref (JOB_REF_PASS (C));
-    return -1; 
+    return -1;
   } else {
     job_decref (JOB_REF_PASS (C));
-    return 1; 
+    return 1;
   }
 }
 
@@ -1695,7 +1698,7 @@ int forward_mtproto_packet (struct tl_in_state *tlio_in, connection_job_t C, int
  */
 
 /* ----------- query rpc forwarding ------------ */
- 
+
 int forward_tcp_query (struct tl_in_state *tlio_in, connection_job_t c, conn_target_job_t S, int flags, long long auth_key_id, int remote_ip_port[5], int our_ip_port[5]) {
   connection_job_t d = 0;
   int c_fd = CONN_INFO(c)->fd;
@@ -1717,7 +1720,7 @@ int forward_tcp_query (struct tl_in_state *tlio_in, connection_job_t c, conn_tar
     d = connection_get_by_fd_generation (Ex->out_fd, Ex->out_gen);
     if (!d || !CONN_INFO(d)->target) {
       if (d) {
-	job_decref (JOB_REF_PASS (d));
+        job_decref (JOB_REF_PASS (d));
       }
       remove_ext_connection (Ex, 1);
       Ex = 0;
@@ -1729,18 +1732,18 @@ int forward_tcp_query (struct tl_in_state *tlio_in, connection_job_t c, conn_tar
     while (S && attempts --> 0) {
       rpc_target_choose_random_connections (S, 0, 1, &d);
       if (d) {
-	if (TCP_RPC_DATA(d)->extra_int == get_conn_tag (d)) {
-	  break;
-	} else {
-	  job_decref (JOB_REF_PASS (d));
-	}
+        if (TCP_RPC_DATA(d)->extra_int == get_conn_tag (d)) {
+          break;
+        } else {
+          job_decref (JOB_REF_PASS (d));
+        }
       }
     }
     if (!d) {
       vkprintf (2, "nowhere to forward user query from connection %d, dropping\n", CONN_INFO(c)->fd);
       dropped_queries++;
       if (CONN_INFO(c)->type == &ct_tcp_rpc_ext_server_mtfront) {
-	__sync_fetch_and_or (&TCP_RPC_DATA(c)->flags, RPC_F_DROPPED);
+        __sync_fetch_and_or (&TCP_RPC_DATA(c)->flags, RPC_F_DROPPED);
       }
       return 0;
     }
@@ -2064,7 +2067,7 @@ void mtfront_pre_loop (void) {
       assert (LC);
       CONN_INFO(LC)->window_clamp = window_clamp;
       if (setsockopt (http_sfd[i], IPPROTO_TCP, TCP_WINDOW_CLAMP, &window_clamp, 4) < 0) {
-	vkprintf (0, "error while setting window size for socket %d to %d: %m\n", http_sfd[i], window_clamp);
+        vkprintf (0, "error while setting window size for socket %d to %d: %m\n", http_sfd[i], window_clamp);
       }
     }
     // create_all_outbound_connections ();
@@ -2119,9 +2122,9 @@ int f_parse_option (int val) {
       assert (colon > ptr && i > 0 && i < 65536);
       ptr = colon;
       if (*ptr != ',') {
-	break;
+        break;
       } else {
-	ptr++;
+        ptr++;
       }
     }
     if (*ptr) {
@@ -2129,14 +2132,14 @@ int f_parse_option (int val) {
       return 2;
     }
     break;
-    /*
+  /*
   case 'o':
-    outbound_connections_per_second = atoi (optarg);
-    if (outbound_connections_per_second <= 0) {
-      outbound_connections_per_second = 1;
-    }
-    break;
-    */
+  outbound_connections_per_second = atoi (optarg);
+  if (outbound_connections_per_second <= 0) {
+    outbound_connections_per_second = 1;
+  }
+  break;
+  */
   case 'M':
     workers = atoi (optarg);
     assert (workers >= 0 && workers <= MAX_WORKERS);
@@ -2148,40 +2151,39 @@ int f_parse_option (int val) {
     }
     break;
   case 'S':
-  case 'P':
-    {
-      if (strlen (optarg) != 32) {
-        kprintf ("'%c' option requires exactly 32 hex digits\n", val);
+  case 'P': {
+    if (strlen (optarg) != 32) {
+      kprintf ("'%c' option requires exactly 32 hex digits\n", val);
+      usage ();
+    }
+
+    unsigned char secret[16];
+    int i;
+    unsigned char b = 0;
+    for (i = 0; i < 32; i++) {
+      if (optarg[i] >= '0' && optarg[i] <= '9')  {
+        b = b * 16 + optarg[i] - '0';
+      } else if (optarg[i] >= 'a' && optarg[i] <= 'f') {
+        b = b * 16 + optarg[i] - 'a' + 10;
+      } else if (optarg[i] >= 'A' && optarg[i] <= 'F') {
+        b = b * 16 + optarg[i] - 'A' + 10;
+      } else {
+        kprintf ("'S' option requires exactly 32 hex digits. '%c' is not hexdigit\n", optarg[i]);
         usage ();
       }
-
-      unsigned char secret[16];
-      int i;
-      unsigned char b = 0;
-      for (i = 0; i < 32; i++) {
-        if (optarg[i] >= '0' && optarg[i] <= '9')  {
-          b = b * 16 + optarg[i] - '0';
-        } else if (optarg[i] >= 'a' && optarg[i] <= 'f') {
-          b = b * 16 + optarg[i] - 'a' + 10;
-        } else if (optarg[i] >= 'A' && optarg[i] <= 'F') {
-          b = b * 16 + optarg[i] - 'A' + 10;
-        } else {
-          kprintf ("'S' option requires exactly 32 hex digits. '%c' is not hexdigit\n", optarg[i]);
-          usage ();
-        }
-        if (i & 1) {
-          secret[i / 2] = b;
-          b = 0;
-        }
-      }
-      if (val == 'S') {
-	tcp_rpcs_set_ext_secret (secret);
-      } else {
-	memcpy (proxy_tag, secret, sizeof (proxy_tag));
-	proxy_tag_set = 1;
+      if (i & 1) {
+        secret[i / 2] = b;
+        b = 0;
       }
     }
-    break;
+    if (val == 'S') {
+      tcp_rpcs_set_ext_secret (secret);
+    } else {
+      memcpy (proxy_tag, secret, sizeof (proxy_tag));
+      proxy_tag_set = 1;
+    }
+  }
+  break;
   default:
     return -1;
   }
@@ -2199,7 +2201,7 @@ void mtfront_prepare_parse_options (void) {
   parse_option ("ping-interval", required_argument, 0, 'T', "sets ping interval in second for local TCP connections (default %.3lf)", PING_INTERVAL);
 }
 
-void mtfront_parse_extra_args (int argc, char *argv[]) /* {{{ */ {
+void mtfront_parse_extra_args (int argc, char *argv[]) { /* {{{ */
   if (argc != 1) {
     usage ();
     exit (2);
@@ -2249,8 +2251,8 @@ void mtfront_pre_init (void) {
         slave_mode = 1;
         parent_pid = getppid ();
         assert (parent_pid == real_parent_pid);
-	engine_enable_slave_mode ();
-	engine_state->do_not_open_port = 1;
+        engine_enable_slave_mode ();
+        engine_state->do_not_open_port = 1;
         break;
       } else {
         pids[i] = pid;
@@ -2301,10 +2303,10 @@ server_functions_t mtproto_front_functions = {
   .FullVersionStr = FullVersionStr,
   .ShortVersionStr = "mtproxy",
   .parse_function = mtfront_parse_function,
-  .http_functions = &http_methods_stats
+  .http_functions = &http_methods_stats,
 };
 
-int main (int argc, char *argv[]) {
+int main_c (int argc, char *argv[]) {
   mtproto_front_functions.allowed_signals |= SIG2INT (SIGCHLD);
   mtproto_front_functions.signal_handlers[SIGCHLD] = on_child_termination;
   mtproto_front_functions.signal_handlers[SIGUSR1] = mtfront_sigusr1_handler;

@@ -553,7 +553,7 @@ static void check_server_functions (void) /* {{{ */ {
   if (!F->aio_timeout) { F->aio_timeout = 0.5; }
 
   if (!F->get_op) { F->get_op = default_get_op; }
-  
+
   int i;
   for (i = 1; i <= 64; i++) {
     if (F->allowed_signals & SIG2INT (i)) {

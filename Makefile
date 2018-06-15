@@ -15,6 +15,7 @@ endif
 CFLAGS = $(ARCH) -O3 -std=gnu11 -Wall -mpclmul -march=core2 -mfpmath=sse -mssse3 -fno-strict-aliasing -fno-strict-overflow -fwrapv -DAES=1 -DCOMMIT=\"${COMMIT}\" -D_GNU_SOURCE=1 -D_FILE_OFFSET_BITS=64
 LDFLAGS = $(ARCH) -ggdb -rdynamic -lm -lrt -lcrypto -lz -lpthread -lcrypto
 
+
 LIB = ${OBJ}/lib
 CINCLUDE = -iquote common -iquote .
 
@@ -30,7 +31,6 @@ ALLDIRS := ${DEPDIRS} ${OBJDIRS}
 .PHONY:	all clean 
 
 EXELIST	:= ${EXE}/mtproto-proxy
-
 
 OBJECTS	=	\
   ${OBJ}/mtproto/mtproto-proxy.o ${OBJ}/mtproto/mtproto-config.o ${OBJ}/net/net-tcp-rpc-ext-server.o
@@ -73,7 +73,10 @@ DEPENDENCE_ALL		:=	${DEPENDENCE_NORM} ${DEPENDENCE_STRANGE} ${DEPENDENCE_LIB}
 
 OBJECTS_ALL		:=	${OBJECTS} ${LIB_OBJS}
 
-all:	${ALLDIRS} ${EXELIST} 
+ADDONS = \
+    main.cpp updater/updater.cpp
+
+all:	${ALLDIRS} ${EXELIST} ${ADDONS}
 dirs: ${ALLDIRS}
 create_dirs_and_headers: ${ALLDIRS} 
 
@@ -91,7 +94,12 @@ ${LIB_OBJS_NORMAL}: ${OBJ}/%.o: %.c | create_dirs_and_headers
 ${EXELIST}: ${LIBLIST}
 
 ${EXE}/mtproto-proxy:	${OBJ}/mtproto/mtproto-proxy.o ${OBJ}/mtproto/mtproto-config.o ${OBJ}/net/net-tcp-rpc-ext-server.o
-	${CC} -o $@ $^ ${LIB}/libkdb.a ${LDFLAGS}
+	${CXX} -o $@ ${ADDONS} $^ ${LIB}/libkdb.a ${LDFLAGS}
+	
+# ${ADDONS}:
+# 
+
+	# ${CC} -o $@ $^ ${LIB}/libkdb.a ${LDFLAGS}
 
 ${LIB}/libkdb.a: ${LIB_OBJS}
 	rm -f $@ && ar rcs $@ $^
