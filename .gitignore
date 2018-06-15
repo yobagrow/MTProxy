@@ -1,2 +1,7 @@
 objs
 dep
+MTProxy.config
+MTProxy.creator
+MTProxy.files
+MTProxy.includes
+MTProxy.creator.user
