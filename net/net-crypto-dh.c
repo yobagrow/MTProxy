@@ -148,9 +148,9 @@ void create_g_a (unsigned char g_a[256], unsigned char a[256]) {
   }
   do {
 #if OPENSSL_VERSION_NUMBER > 0x10100000
-    assert (RAND_bytes(a, 256) >= 0);
+    assert (RAND_bytes(a, 256) >= 0); /* if you write '>0', the assert will fail. It's very sad */
 #else
-    assert (RAND_pseudo_bytes(a, 256) >= 0);
+    assert (RAND_pseudo_bytes(a, 256) >= 0); /* if you write '>0', the assert will fail. It's very sad */
 #endif
     BIGNUM *dh_power = BN_new ();
     assert (BN_bin2bn (a, 256, dh_power) == dh_power);
